@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amy's Gym — 6 May 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f0;
+    --surface: #ffffff;
+    --surface2: #f5f2ea;
+    --border: rgba(0,0,0,0.08);
+    --text: #2a2a2a;
+    --muted: #7a7a6a;
+    --sand:      #f2e4c4; --sand-dk:   #a08040;
+    --foam:      #d6eee8; --foam-dk:   #2e7a65;
+    --surf:      #b8ddf5; --surf-dk:   #1a5f8a;
+    --lagoon:    #a8e0d8; --lagoon-dk: #1d6e65;
+    --shell:     #f5cfc4; --shell-dk:  #a03820;
+    --coral:     #f5b8a0; --coral-dk:  #9a3515;
+    --kelp:      #c8e8a8; --kelp-dk:   #3a6e18;
+    --sunset:    #f5d4a0; --sunset-dk: #8a5010;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    padding: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  header {
+    padding: 1.25rem 0 1rem;
+    border-bottom: 2px solid var(--sand);
+    margin-bottom: 1rem;
+  }
+  header a { font-size: 12px; color: var(--muted); text-decoration: none; display:block; margin-bottom: 4px; }
+  header a:hover { text-decoration: underline; }
+  header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  header p  { color: var(--muted); font-size: 13px; margin-top: 3px; }
+
+  .block {
+    border-radius: 14px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    border: 1.5px solid rgba(0,0,0,0.07);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .block-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.9rem 1rem;
+    cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .block-header:active { filter: brightness(0.96); }
+  .bh-sand   { background: var(--sand);   }
+  .bh-foam   { background: var(--foam);   }
+  .bh-surf   { background: var(--surf);   }
+  .bh-lagoon { background: var(--lagoon); }
+  .bh-shell  { background: var(--shell);  }
+  .bh-coral  { background: var(--coral);  }
+  .bh-kelp   { background: var(--kelp);   }
+  .bh-sunset { background: var(--sunset); }
+
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    padding: 3px 9px; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+    background: rgba(0,0,0,0.10); color: var(--text);
+  }
+  .block-title { font-size: 15px; font-weight: 600; flex: 1; color: var(--text); }
+  .chevron { font-size: 11px; color: var(--muted); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .block-body {
+    display: none;
+    padding: 0 1rem 1rem;
+    background: var(--surface);
+    border-top: 1.5px solid rgba(0,0,0,0.06);
+  }
+  .block-body.open { display: block; }
+
+  .station-grid { display:flex; flex-direction:column; gap:0.75rem; padding-top:0.75rem; }
+  .station {
+    border-radius: 10px; padding: 0.85rem;
+    border: 1.5px solid rgba(0,0,0,0.07);
+  }
+  .st-surf   { background: #eaf5fc; }
+  .st-lagoon { background: #e4f5f2; }
+  .st-coral  { background: #fef0ea; }
+  .st-sand   { background: #fdf6e3; }
+  .st-kelp   { background: #f0f8e8; }
+  .st-foam   { background: #eaf6f2; }
+  .station-name { font-size:14px; font-weight:600; margin-bottom:2px; color:var(--text); }
+  .station-eq   { font-size:11px; color:var(--muted); margin-bottom:8px; }
+  .station .cue { font-size:12px; margin-top:0.6rem; padding:0.4rem 0.6rem; }
+  .station .drill-text { font-size: 13px; }
+
+  .drill-item { border-bottom: 1px solid var(--border); }
+  .drill-item:last-of-type { border-bottom: none; }
+  .station .drill-item { border-color: rgba(0,0,0,0.06); }
+
+  .drill-row {
+    display: flex; align-items: flex-start;
+    gap: 6px; padding: 6px 0 5px;
+    cursor: pointer; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .drill-row:active { opacity: 0.75; }
+  .drill-dash { color: var(--muted); font-size: 12px; padding-top: 3px; flex-shrink: 0; }
+  .drill-text { font-size: 15px; line-height: 1.6; flex: 1; color: var(--text); }
+  .tip-toggle {
+    font-size: 10px; font-weight: 500;
+    padding: 2px 7px; border-radius: 20px;
+    background: rgba(0,0,0,0.07); color: var(--muted);
+    white-space: nowrap; flex-shrink: 0; margin-top: 3px;
+  }
+  .drill-row.has-spot .tip-toggle { background: rgba(240,122,90,0.15); color: var(--coral-dk); }
+
+  .drill-tip {
+    display: none;
+    font-size: 13px; color: #3a3a30;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.55rem 0.7rem;
+    margin: 0 0 0.5rem 1rem;
+    line-height: 1.6;
+  }
+  .drill-tip.open { display: block; }
+  .drill-tip p { margin-bottom: 0.4rem; }
+  .drill-tip p:last-child { margin-bottom: 0; }
+  .spot-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+    color: var(--coral-dk); text-transform: uppercase;
+    margin-top: 0.4rem; margin-bottom: 0.15rem;
+  }
+
+  .cue {
+    margin-top: 0.75rem;
+    border-left: 4px solid; padding: 0.55rem 0.75rem;
+    font-size: 14px; font-style: italic; font-weight: 500;
+    border-radius: 0 8px 8px 0;
+  }
+  .cue-sand   { border-color:var(--sand-dk);   background:var(--sand);   color:var(--sand-dk);   }
+  .cue-foam   { border-color:var(--foam-dk);   background:var(--foam);   color:var(--foam-dk);   }
+  .cue-surf   { border-color:var(--surf-dk);   background:var(--surf);   color:var(--surf-dk);   }
+  .cue-lagoon { border-color:var(--lagoon-dk); background:var(--lagoon); color:var(--lagoon-dk); }
+  .cue-coral  { border-color:var(--coral-dk);  background:var(--coral);  color:var(--coral-dk);  }
+  .cue-kelp   { border-color:var(--kelp-dk);   background:var(--kelp);   color:var(--kelp-dk);   }
+
+  .block-note {
+    font-size: 13px; color: var(--muted);
+    padding-top: 0.75rem; padding-bottom: 0.1rem;
+  }
+
+  .note {
+    font-size:12px; color:var(--muted);
+    margin-top:0.5rem; padding:0.4rem 0.65rem;
+    background:var(--surface2); border-radius:6px; border:1px solid var(--border);
+  }
+
+  .safety-item {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:0.65rem 0; border-bottom:1px solid var(--border);
+    font-size:15px; color:var(--text);
+  }
+  .safety-item:last-child { border-bottom:none; }
+  .dot { width:9px; height:9px; border-radius:50%; background:#c03020; margin-top:6px; flex-shrink:0; }
+
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:1.5rem 0 2.5rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../index.html">← All sessions</a>
+  <h1>Amy's Gym</h1>
+  <p>Floor · 6 May 2026 · 6 gymnasts · 10–13 yrs · 5:55–7:30pm</p>
+</header>
+
+<!-- WARM-UP -->
+<div class="block">
+  <div class="block-header bh-sand" onclick="toggle(this)">
+    <span class="pill">5:55–6:05</span>
+    <span class="block-title">Plyo warm-up</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Tuck jumps, broad jumps, ankle bounces, split squat jumps, lateral hops</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip">
+        <p>Same routine as last week. They know it. 10 minutes of plyometric warm-up. Focus on form, not speed.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRETCH & CONDITIONING -->
+<div class="block">
+  <div class="block-header bh-foam" onclick="toggle(this)">
+    <span class="pill">6:05–6:20</span>
+    <span class="block-title">Stretch &amp; conditioning</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <div class="drill-item" style="border:none;">
+      <div class="drill-row" style="cursor:default;">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Your usual routine</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOOR SKILLS CIRCUIT -->
+<div class="block">
+  <div class="block-header bh-surf" onclick="toggle(this)">
+    <span class="pill">6:20–6:35</span>
+    <span class="block-title">Floor skills circuit</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <p class="block-note">All together, flowing down the floor in sequence. Self-paced. You circulate and correct. The flow is everything — cartwheels feed into rolls, rolls feed into handstand work.</p>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Cartwheel snap down</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Cartwheel with a snap at the end — feet together in the air. Classic move.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">1 cartwheel one-foot landing</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Land on one foot only — the other stays lifted. Freeze for 2 seconds. Shows control and balance. Prep for round-off snap.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">2 cartwheels, last one snap down</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Two cartwheels in a row, snap the feet together on the last one.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Handstand forward roll (straight arms)</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Kick to handstand, hold for a beat, then tuck the chin to chest and let the body roll forward to standing. The key is tucking the chin BEFORE the hands leave the floor.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Straddle forward roll</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Legs wide in the roll, don't tuck them. Roll forward, push with hands on the floor to stand up straight — no hands touching yourself at the end. Tests control and core.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Pike backward roll → front support</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Backward roll with legs straight and hips bent (pike). Roll over shoulders, place hands, and push to straight-arm front support (plank). Hold 2 sec. Builds shoulder strength and links to back handspring awareness.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Handstand hops</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Kick to handstand at the wall. Shift weight from hand to hand — small hops. Builds shoulder proprioception and hand placement comfort. Stay tight — don't let the hips pike.</p></div>
+    </div>
+    <div class="cue cue-surf">"Each element builds the next — stay focused."</div>
+  </div>
+</div>
+
+<!-- WALKOVER STATIONS -->
+<div class="block">
+  <div class="block-header bh-lagoon" onclick="toggle(this)">
+    <span class="pill">6:35–6:50</span>
+    <span class="block-title">Walkover stations</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <p class="block-note">3 stations, rotate every 5 min. 2 gymnasts each. You spot at Station 1. Back walkovers build the backward confidence needed for round-off back handsprings.</p>
+    <div class="station-grid">
+      <div class="station st-lagoon">
+        <div class="station-name">Station 1 — Floor</div>
+        <div class="station-eq">Tick tocks & kickover to handstand on vertical crashmat · You spot here</div>
+        <div class="drill-item">
+          <div class="drill-row has-spot" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Tick-tock progression → handstand in split</span>
+            <span class="tip-toggle">spot ▾</span>
+          </div>
+          <div class="drill-tip">
+            <p>Lean back, rock forward (tick-tock motion), build momentum, kick to handstand with one foot on the vertical mat. The mat gives feedback — they feel where their body is in space.</p>
+            <div class="spot-label">Spotting</div>
+            <p>One hand on lower back, one on hip. Guide the momentum. The wall/mat does the work.</p>
+          </div>
+        </div>
+      </div>
+      <div class="station st-foam">
+        <div class="station-name">Station 2 — Soft beam</div>
+        <div class="station-eq">Walkovers · Self-directed</div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Choose: front or back walkover on beam</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip">
+            <p>Soft beam means confidence is high. Pick the walkover that feels right. Focus on pushing through the shoulders and looking at the beam as you go over. Soft beam is forgiving — commit fully.</p>
+          </div>
+        </div>
+      </div>
+      <div class="station st-sand">
+        <div class="station-name">Station 3 — Floor</div>
+        <div class="station-eq">Backward walkovers · Partner feedback</div>
+        <div class="drill-item">
+          <div class="drill-row has-spot" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Back walkover — full version</span>
+            <span class="tip-toggle">spot ▾</span>
+          </div>
+          <div class="drill-tip">
+            <p>Stand tall, reach arms overhead, lean back into a back-bend, place one hand then the other on the floor, kick legs over. Land on one foot, then step to standing.</p>
+            <div class="spot-label">Spotting</div>
+            <p>One hand on lower back throughout, one on hip or landing leg. Stay in contact — guide the rotation smoothly. Don't lift — just support.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEAPS & SPINS -->
+<div class="block">
+  <div class="block-header bh-kelp" onclick="toggle(this)">
+    <span class="pill">6:50–7:00</span>
+    <span class="block-title">Leaps &amp; spins together</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <p class="block-note">All together down the floor. You cue the whole group.</p>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Split leaps</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Back leg snaps up to meet the front. Don't reach the front leg forward. Think "split in the air, not a stretch."</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Cat leaps</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Front leg straight, back knee bent up. Different shape, same explosive take-off. High hips.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Turning scissor leaps</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Leap with a quarter turn in the air — swap legs mid-air. Builds body awareness and aerial sense.</p></div>
+    </div>
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Standing jump full turns</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip"><p>Jump and spin a full rotation. Rise first on relevé, THEN turn. Arms pull in tight to speed the turn. Spot a fixed point on the wall.</p></div>
+    </div>
+    <div class="cue cue-kelp">"Leap high, land light."</div>
+  </div>
+</div>
+
+<!-- ROUND-OFF & BACK HANDSPRING -->
+<div class="block">
+  <div class="block-header bh-coral" onclick="toggle(this)">
+    <span class="pill">7:00–7:20</span>
+    <span class="block-title">Round-off &amp; back handspring progressions</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <p class="block-note">3 areas, 2 gymnasts each. You park at Area 3 when spotting is needed. This is your protected block.</p>
+    <div class="station-grid">
+      <div class="station st-coral">
+        <div class="station-name">Area 1 — Floor</div>
+        <div class="station-eq">Round-off technique</div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Round-off — snap feet together</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip"><p>Step, hurdle, cartwheel arms, snap both feet together simultaneously. The snap is everything. Do it slowly first, then build speed.</p></div>
+        </div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Round-off rebound — land, punch, jump</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip"><p>After the snap, feet land and immediately punch straight up into a vertical jump. No pause. This trains the reactive punch needed for every skill after a round-off.</p></div>
+        </div>
+        <div class="cue cue-coral">"Snap feet together — then punch."</div>
+      </div>
+      <div class="station st-lagoon">
+        <div class="station-name">Area 2 — Air track</div>
+        <div class="station-eq">Round-off into crashmat against wall</div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Round-off → sit into crashmat</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip"><p>Crashmat propped against the wall. Round-off and drive hips UP — landing in a sitting position against the mat. The wall gives reference. Key drill: teaches hips driving through, NOT throwing the head back.</p>
+            <div class="spot-label">Watch for</div>
+            <p>Head throwing back before feet snap — cue "eyes forward until your feet hit." If they're sitting cleanly with back to the mat, they're doing it right.</p>
+          </div>
+        </div>
+        <div class="cue cue-lagoon">"Hips drive through — don't throw your head."</div>
+      </div>
+      <div class="station st-surf">
+        <div class="station-name">Area 3 — Spot here</div>
+        <div class="station-eq">Round-off progressions into skills</div>
+        <div class="drill-item">
+          <div class="drill-row has-spot" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Round-off → back walkover (confident gymnasts)</span>
+            <span class="tip-toggle">spot ▾</span>
+          </div>
+          <div class="drill-tip"><p>The rebound from the round-off gives momentum — walkover is often easier here than from standing. Remind them not to pause after landing.</p>
+            <div class="spot-label">Spotting</div>
+            <p>One hand on lower back, one ready under the lead leg as it comes over. Guide, don't lift. Step back once they've found their feet.</p>
+          </div>
+        </div>
+        <div class="drill-item">
+          <div class="drill-row has-spot" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Back handspring progressions — beginner</span>
+            <span class="tip-toggle">spot ▾</span>
+          </div>
+          <div class="drill-tip"><p>Start with handstand flatback into stacked crashmat. Then handstand fall to feet with your spot. Then BHS attempt with heavy support. Never leave her standing watching.</p>
+            <div class="spot-label">Spotting</div>
+            <p>One hand on hip, one on shoulder as she goes over. Help her feel the rotation — guide through, don't hold back. Praise every attempt.</p>
+          </div>
+        </div>
+        <div class="cue cue-surf">"Punch the floor away — don't fall into it."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIVE ROLLS & FRONT SOMERSAULTS -->
+<div class="block">
+  <div class="block-header bh-shell" onclick="toggle(this)">
+    <span class="pill">7:20–7:26</span>
+    <span class="block-title">Dive rolls &amp; front somersaults</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <p class="block-note">Trampette work. Progress carefully. You spot here.</p>
+    <div class="station-grid">
+      <div class="station st-shell">
+        <div class="station-name">Warm-up</div>
+        <div class="station-eq">Forward roll on trampette</div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Forward roll — get comfortable</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip"><p>Run-up, step onto trampette, bounce once, roll into crashmat. 1–2 goes before progressing to diver roll.</p></div>
+        </div>
+      </div>
+      <div class="station st-coral">
+        <div class="station-name">Main Skill</div>
+        <div class="station-eq">Diver roll with spot</div>
+        <div class="drill-item">
+          <div class="drill-row has-spot" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Diver roll — drive UP, then curl</span>
+            <span class="tip-toggle">spot ▾</span>
+          </div>
+          <div class="drill-tip"><p>Run, hurdle onto trampette, take off two feet, drive arms and chest forward and UP (like diving into a pool), tuck chin and roll. Should have a moment of flight.</p>
+            <div class="spot-label">Spotting</div>
+            <p>Stand to the side. One hand on upper back/shoulders, one ready under hips to slow descent. Voice: "drive forward, trust it." One at a time. Don't chain to front tuck until diver roll is clean and confident.</p>
+          </div>
+        </div>
+        <div class="cue cue-coral">"Drive hips UP, then curl."</cue>
+      </div>
+      <div class="station st-lagoon">
+        <div class="station-name">Progression</div>
+        <div class="station-eq">Front somersault (tuck) if ready</div>
+        <div class="drill-item">
+          <div class="drill-row" onclick="tipToggle(this)">
+            <span class="drill-dash">–</span>
+            <span class="drill-text">Front tuck — only if diver roll is solid</span>
+            <span class="tip-toggle">tip ▾</span>
+          </div>
+          <div class="drill-tip"><p>After a clean diver roll, progress to tucked front somersault. Only for those with solid body awareness and diver roll control. Don't rush.</p></div>
+        </div>
+        <div class="cue cue-lagoon">"One skill solid before the next."</cue>
+      </div>
+    </div>
+    <p class="block-note" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border);"><strong>Safety:</strong> Trampette one at a time · Mat stacked high · You spot</p>
+  </div>
+</div>
+
+<!-- HANDSTAND GAME -->
+<div class="block">
+  <div class="block-header bh-sunset" onclick="toggle(this)">
+    <span class="pill">7:26–7:28</span>
+    <span class="block-title">Handstand game</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <div class="drill-item" style="border:none;">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Relay teams: hold handstand 5 sec each</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip">
+        <p>Divide into two relay teams (3 each). Take turns: kick to handstand at the wall, hold for 5 full seconds with tight body, step down. Tag the next teammate. First team to complete all rotations wins. High energy, competitive, fun way to end on a win.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COOL-DOWN -->
+<div class="block">
+  <div class="block-header bh-sunset" onclick="toggle(this)">
+    <span class="pill">7:28–7:30</span>
+    <span class="block-title">Cool-down</span>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="block-body">
+    <div class="drill-item">
+      <div class="drill-row" onclick="tipToggle(this)">
+        <span class="drill-dash">—</span>
+        <span class="drill-text">Quick stretches: straddle, splits</span>
+        <span class="tip-toggle">tip ▾</span>
+      </div>
+      <div class="drill-tip">
+        <p>30 sec seated straddle, 30 sec splits each side. Keep it moving — wind down heart rate.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Amy's Gym</footer>
+
+<script>
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+  }
+  function tipToggle(row) {
+    const tip = row.nextElementSibling;
+    if (!tip || !tip.classList.contains('drill-tip')) return;
+    tip.classList.toggle('open');
+    const btn = row.querySelector('.tip-toggle');
+    if (btn) btn.textContent = tip.classList.contains('open')
+      ? (btn.textContent.includes('spot') ? 'spot ▴' : 'tip ▴')
+      : (btn.textContent.includes('spot') ? 'spot ▾' : 'tip ▾');
+  }
+</script>
+</body>
+</html>
